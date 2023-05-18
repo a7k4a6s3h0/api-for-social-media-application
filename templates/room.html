@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>Chat Room</title>
+
+    <style>
+        .textarea-container {
+            position: relative;
+            width: 600px;
+            height: 400px;
+          }
+          
+          #chat-log {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+          }
+          
+          #chat-image {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            width: 450px;
+            height: 240px;
+            object-fit: cover;
+          }
+
+          #chat-video{
+            padding-top: 10px;
+            padding-left: 10px;
+            width: 450px;
+            height: 240px;
+          }
+          
+    </style>
+
+
+</head>
+<body>
+    <div class="textarea-container">
+        <textarea id="chat-log" cols="100" rows="20"></textarea>
+        
+      </div>
+      
+    <input id="chat-message-input" type="text" size="100"><br>
+    <input id="chat-message-submit" type="button" value="Send">
+    <input type="file" id="files">
+    {{ room_name|json_script:"room-name" }}
+    <script>
+        const roomName = JSON.parse(document.getElementById('room-name').textContent);
+        const accessToken = localStorage.getItem('accessToken');
+        const chatSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/chat/'
+            + roomName
+            + '/?Authorization='
+            + accessToken
+        );
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            const divid = document.querySelector(".textarea-container");
+            const chatLog = document.querySelector('#chat-log');
+            
+       
+            if(data.message.attachment) {
+                
+                // Check if the attachment is an image or video file
+                if (data.message.attachment.endsWith('.mp4') || data.message.attachment.endsWith('.webm') || data.message.attachment.endsWith('.ogg')) {
+                    const attachment = document.createElement('video');
+                    attachment.src = "multimedianow" + data.message.attachment;
+                    attachment.id = "chat-video";
+                    attachment.alt = "video";
+                    attachment.controls = true; // Add controls to the video player
+                    divid.appendChild(attachment);
+                } else {
+                    const attachment = document.createElement('img');
+                    attachment.src = "multimedianow" + data.message.attachment;
+                    attachment.id = "chat-image";
+                    attachment.alt = "img";
+                    divid.appendChild(attachment);
+                    
+                }
+            }
+        
+            if (data.message.text) {
+                chatLog.value += (data.message.text + '\n');
+            }
+      
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+
+        document.querySelector('#chat-message-input').focus();
+        document.querySelector('#chat-message-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#chat-message-submit').click();
+            }
+        };
+
+        document.querySelector('#chat-message-submit').onclick = function(e) {
+            const messageInputDom = document.querySelector('#chat-message-input');
+            const message = messageInputDom.value;
+                    
+            const fileInputDom = document.querySelector('#files');
+           
+            if (fileInputDom.files.length > 0) {
+                const fileReader = new FileReader();
+                fileReader.onload = function(event) {
+                    const fileData = event.target.result;
+                    const base64Data = fileData.split(',')[1];
+                    
+                    chatSocket.send(JSON.stringify({
+                        'message': message,
+                        'attachment': base64Data
+                    }));
+                };
+                        
+                fileReader.readAsDataURL(fileInputDom.files[0]);
+            } else {
+                chatSocket.send(JSON.stringify({
+                    'message': message
+                }));
+            }
+                    
+            messageInputDom.value = '';
+            fileInputDom.value = '';
+        };
+        
+        
+    </script>
+</body>
+</html>

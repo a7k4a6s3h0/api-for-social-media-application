@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Call Coming Interface</title>
+    <style>
+    * {
+        box-sizing: border-box;
+    }
+    
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: Arial, sans-serif;
+        background-color: #f2f2f2;
+    }
+    
+    .container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #fff;
+        box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+        border-radius: 5px;
+    }
+    
+    h1 {
+        text-align: center;
+        margin-top: 0;
+    }
+    
+    .call-info {
+        display: flex;
+        align-items: center;
+        margin-bottom: 40px;
+    }
+    
+    .call-info img {
+        width: 60px;
+        height: 60px;
+        margin-right: 20px;
+    }
+    
+    .call-details {
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .caller-name {
+        font-size: 24px;
+        font-weight: bold;
+        margin: 0 0 10px 0;
+    }
+    
+    .call-time {
+        font-size: 18px;
+        margin: 0;
+    }
+    
+    .button-container {
+        display: flex;
+        justify-content: space-between;
+    }
+    
+    .answer-button, .reject-button {
+        padding: 10px 20px;
+        background-color: #4CAF50;
+        color: #fff;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    
+    .answer-button:hover, .reject-button:hover {
+        background-color: #3e8e41;
+    }
+    
+    @media screen and (max-width: 767px) {
+        .call-info {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+    
+        .call-info img {
+            margin-bottom: 10px;
+        }
+    
+        .button-container {
+            flex-direction: column;
+        }
+    
+        .answer-button, .reject-button {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+    }
+    
+    
+</style>
+
+
+</head>
+<body>
+    <div class="container">
+        <h1>Call Coming Interface</h1>
+        <div class="call-info">
+            <h6 id="status"></h6>
+            <img src="call.png" alt="Call Icon">
+            <div class="call-details">
+                <img id="user_profile" alt="img">
+                <p class="caller-name"></p>
+                <p class="call-time"></p>
+                
+            </div>
+        </div>
+        <div class="button-container">
+            <button class="answer-button" id="answer-call-btn">Answer</button>
+            <button class="reject-button" id="end-call-btn">Reject</button>
+        </div>
+    </div>
+
+    <script>
+
+
+        const AnswerCall = document.getElementById("answer-call-btn");
+        AnswerCall.addEventListener("click", function(){
+            let call_id = localStorage.getItem("call_id")
+
+            // Define the API endpoint URL
+            const apiUrl = "http://127.0.0.1:8000/api/call_connecting/";
+
+            // Define the request headers
+            const headers = {
+                'Content-type': 'application/json; charset=UTF-8',
+                "Authorization": "Bearer "+ localStorage.getItem('accessToken')
+            };
+
+            // Make the API call using fetch
+            fetch(apiUrl, {
+                method:'POST',
+                headers: headers,
+                body: JSON.stringify({
+                "status": 'accept',
+                "call_id": call_id
+            })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle the API response
+                console.log(data);
+                localStorage.setItem("token", data.token)
+                localStorage.setItem("uid", data.uid)
+                localStorage.setItem("channel", data.channel_name)
+              
+                setTimeout(function() {
+                    window.location.href = "/video_call";
+                }, 5000);
+                
+            })
+            .catch(error => {
+                // Handle errors
+                console.error(error);
+            });
+
+
+    })
+
+
+
+
+        const endCallBtn = document.getElementById("end-call-btn");
+        endCallBtn.addEventListener("click", function() {
+
+            let call_id = localStorage.getItem("call_id")
+
+            // Define the API endpoint URL
+            const apiUrl = "http://127.0.0.1:8000/api/call_connecting/";
+
+            // Define the request headers
+            const headers = {
+                'Content-type': 'application/json; charset=UTF-8',
+                "Authorization": "Bearer "+ localStorage.getItem('accessToken')
+            };
+
+            // Make the API call using fetch
+            fetch(apiUrl, {
+                method:'POST',
+                headers: headers,
+                body: JSON.stringify({
+                "status": 'end',
+                "call_id": call_id
+            })
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle the API response
+                console.log(data);
+
+                document.querySelector('.call-time').textContent = data.calling_details.ended_time
+                document.getElementById("status").innerHTML = data.message
+                if(data.message == "Call_ended"){
+                    setTimeout(function(){
+                        window.location.href = "/"
+                    }, 2000);
+                }
+
+            })
+            .catch(error => {
+                // Handle errors
+                console.error(error);
+            });
+    })
+    </script>
+
+</body>
+</html>

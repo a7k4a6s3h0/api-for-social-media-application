@@ -1,0 +1,176 @@
+{%load static%}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset='utf-8'>
+    <meta http-equiv='X-UA-Compatible' content='IE=edge'>
+    <title>MyChat</title>
+    <meta name='viewport' content='width=device-width, initial-scale=1'>
+    <link rel='stylesheet' type='text/css' media='screen' href="{% static 'css/main.css' %}">
+    <!-- <script src='main.js'></script> -->
+</head>
+<body>
+
+    <main>
+        <section id="room-name-wrapper">
+            <p>Room Name: TESTROOM</p>
+        </section>
+
+                <div id="video-streams">
+
+                    
+                    </div>  
+                </div>
+
+        <section id="controls-wrapper">
+            <div class="icon-wrapper">
+                <img class="control-icon" id="mic-btn" src="images/microphone.svg" />
+            </div>
+
+            <div class="icon-wrapper">
+                <img class="control-icon" id="camera-btn" src="images/video.svg" />
+            </div>
+
+            <div class="icon-wrapper">
+                <img class="control-icon" id="leave-btn" src="images/leave.svg" />
+            </div>
+        </section>
+    </main>
+<script type = "text/javascript" src="{% static 'assest/AgoraRTC_N-4.17.2.js' %}"></script>
+<Script>
+
+        
+const APP_ID = '7f7dd169c1904d2bba91d90c5b542a6a' 
+const CHANNEL = "server"
+const TOKEN = "007eJxTYLir8FnFVbNt6kymxwWC5/fF734jueisZTFH4My/6v0GBccUGMzTzFNSDM0skw0tDUxSjJKSEi0NUywNkk2TTE2MEs0Sdy9ITWkIZGQ4El7OwAiFID4bQ3FqUVlqEQMDAI91IJY="
+let UID;
+let NAME = localStorage.getItem("username")
+
+// Create an AgoraRTC client with the specified mode and codec
+const client = AgoraRTC.createClient({ mode: 'rtc', codec: 'vp8' });
+
+// Initialize variables to hold local tracks and remote users
+let localTracks = [];
+let remoteUsers = {};
+
+// Define an async function to join the channel and display the local stream
+let joinAndDisplayLocalStream = async () => {
+    
+    // Register an event handler to handle when a user publishes a stream
+    client.on('user-published', handleUserJoined);
+
+    client.on('user-left', handleUserLeft);
+
+    // Join the Agora RTC channel with the specified App ID, channel name, token, and user ID
+    try {
+        UID = await client.join(APP_ID, CHANNEL, TOKEN, null);
+    } catch (error) {
+        console.error(error);
+        // Redirect to the home page if there's an error
+        // window.open('/', '_self')
+    }
+    
+    // Create local tracks for the microphone and camera
+    localTracks = await AgoraRTC.createMicrophoneAndCameraTracks();
+
+    // Create an HTML element to display the local video stream
+    let player = `<div class="video-container" id="user-container-${UID}">
+                    <div class="video-player" id="user-${UID}"></div>
+                    <div class="username-wrapper"><span class="user-name">${NAME}</span></div>
+                  </div>`;
+    
+    // Add the player HTML element to the webpage
+    document.getElementById('video-streams').insertAdjacentHTML('beforeend', player);
+
+    // Play the local video stream in the player element
+    localTracks[1].play(`user-${UID}`);
+
+    // Publish the local tracks to the channel
+    await client.publish([localTracks[0], localTracks[1]]);
+
+}
+
+
+
+let handleUserJoined = async (user, mediaType) => {
+    remoteUsers[user.uid] = user
+    console.log(user,"gfdtgdfgsddf")
+    await client.subscribe(user, mediaType)
+
+    if (mediaType == 'video'){
+        let player = document.getElementById('user-container-${user.uid}')
+        if(player != null){
+            player.remove()
+        }
+        console.log("in")
+        reciver = localStorage.getItem("reciver")
+        // Create an HTML element to display the local video stream
+        player = `<div class="video-container" id="user-container-${user.uid}">
+            <div class="video-player" id="user-${user.uid}"></div>
+            <div class="username-wrapper"><span class="user-name">${reciver}</span></div>
+        </div>`;
+
+        // Add the player HTML element to the webpage
+        document.getElementById('video-streams').insertAdjacentHTML('beforeend', player);
+
+        user.videoTrack.play(`user-${user.uid}`)
+    }
+
+    if (mediaType == 'audio'){
+        user.audioTrack.play(`user-${user.uid}`)
+    }
+}
+
+
+
+let handleUserLeft = async (user) => {
+    delete remoteUsers[user.uid]
+    document.getElementById(`user-container-${user.uid}`).remove()
+}
+
+
+let leaveAndRemoveLocalStream = async () => {
+    for (let i=0; localTracks.length > i; i++){
+        localTracks[i].stop()
+        localTracks[i].close()
+    }
+
+    await client.leave()
+    //This is somewhat of an issue because if user leaves without actaull pressing leave button, it will not trigger
+    //deleteMember()
+    window.open('/', '_self')
+}
+
+let toggleCamera = async (e) =>{
+    
+    if(localTracks[1].muted){
+        await localTracks[1].setMuted(false)
+        e.target.style.backgroung = '#fff'
+    }else{
+        await localTracks[1].setMuted(true)
+        e.target.style.backgroung = 'rgb(255, 80, 80, 1)'
+    }
+}
+
+let toggleMic = async (e) => {
+    console.log('TOGGLE MIC TRIGGERED')
+    if(localTracks[0].muted){
+        await localTracks[0].setMuted(false)
+        e.target.style.backgroundColor = '#fff'
+    }else{
+        await localTracks[0].setMuted(true)
+        e.target.style.backgroundColor = 'rgb(255, 80, 80, 1)'
+    }
+}
+
+
+// Call the joinAndDisplayLocalStream function to join the channel and display the local stream
+joinAndDisplayLocalStream();
+
+document.getElementById('leave-btn').addEventListener('click', leaveAndRemoveLocalStream)
+document.getElementById('camera-btn').addEventListener('click', toggleCamera)
+document.getElementById('mic-btn').addEventListener('click', toggleMic)
+
+</Script>
+</body>
+</html>

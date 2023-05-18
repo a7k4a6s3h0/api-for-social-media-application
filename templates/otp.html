@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Enter OTP</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" />
+    <style>
+        #show {
+            list-style: none;
+            color: red;
+          }
+    </style>
+  </head>
+  <body>
+    <div class="container mt-5">
+      <h1>Enter OTP</h1>
+      <form>
+        <div class="form-group" id="otpinput">
+          <label for="otp">OTP</label>
+          <input type="text" class="form-control" id="otp" maxlength="6" required />
+        </div>
+        <div class="form-group">
+            <label for="register_id">Register ID</label>
+            <input type="text" class="form-control" id="Register_id"  required />
+          </div>
+          <div class="form-group">
+            <label for="otptimer">Enter OTP within 1 minute</label>
+            <h6 id="timer"></h6>
+          </div>  
+        <button id="submitbutton" onclick="checkotp()" type="button" class="btn btn-primary">Submit</button>
+        <a id="resentbutton" onclick="resendotp()">resend otp</a>
+      </form>
+      <h5 id="show"></h5>
+    </div>
+
+    <!-- jQuery first, then Popper.js, then Bootstrap JS -->
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"></script>
+
+    <script>
+        function checkotp(){
+            let user_otp = document.getElementById('otp').value
+            let register_id = document.getElementById('Register_id').value
+            const data = {
+                user_entered_otp:user_otp,
+                Registerd_id:register_id
+            }
+
+            fetch('http://localhost:8000/api/otpchecking/', {
+                method: 'POST',
+                body:JSON.stringify(data),
+                headers: {
+                "Content-Type": "application/json"
+                }
+              })
+              .then(response => response.json())
+              .then(data =>{
+                console.log(data)
+                    if (data.message){
+                        
+                        document.getElementById("show").innerHTML = data.message;
+                        
+                    }else{
+                        document.getElementById("show").innerHTML = data.detail;
+                    }
+                    if(data.status==200){
+                        localStorage.setItem('accessToken', data.asscess_token);
+                        window.location.href = "/chat_room"
+                    }
+              })
+              .catch(error => console.error(error))
+        }
+        function timer(){
+            var timer = 60; // 60 seconds
+            var interval = setInterval(function() {
+            timer--;
+            document.getElementById("timer").innerHTML = "Time remaining: " + timer + " seconds";
+            if (timer === 0) {
+                clearInterval(interval);
+                document.getElementById("timer").innerHTML = "Time's up!";
+                document.getElementById('submitbutton').style.display = 'none'
+            }
+            }, 1000); // 1000 milliseconds = 1 second
+
+        }
+        timer()
+        function resendotp(){
+            let div = document.getElementById('otpinput');
+            div.style.display = 'none';
+            document.getElementById('resentbutton').style.display = 'none'
+
+            let register_id = document.getElementById('Register_id').value
+
+            document.getElementById('timer').innerHTML = "";
+
+
+            if (register_id){
+            const data = {
+                Registerd_id:register_id
+            }
+
+            fetch('http://localhost:8000/api/otpchecking/', {
+                method: 'POST',
+                body:JSON.stringify(data),
+                headers: {
+                "Content-Type": "application/json"
+                }
+              })
+              .then(response => response.json())
+              .then(data =>{
+                console.log(data)
+                    if (data.message){
+                        
+                        document.getElementById("show").innerHTML = data.message;
+                        timer()
+
+                    }else{
+                        document.getElementById("show").innerHTML = data.detail;
+                    }
+                    if(data.status==200){
+                      // Assuming you have an access token stored in a variable called "accessToken"
+                      localStorage.setItem('accessToken', data.asscess_token);
+
+                    }
+                    if(data.status==201){
+                        document.getElementById('otpinput').style.display = 'block'
+                        document.getElementById('resentbutton').style.display = 'block'
+                    }
+              })
+              .catch(error => console.error(error))
+            }
+        }
+    </script>
+  </body>
+</html>

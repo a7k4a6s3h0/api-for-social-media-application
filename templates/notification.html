@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h4>testing</h4>
+    <script>
+        // Define the API endpoint URL
+        const apiUrl = "http://127.0.0.1:8000/api/get_notification/";
+
+        // Define the request headers
+        const headers = {
+    
+            "Authorization": "Bearer "+ localStorage.getItem('accessToken')
+        };
+
+        // Make the API call using fetch
+        fetch(apiUrl, {
+            method:'GET',
+            headers: headers,
+            
+        })
+        .then(response => response.json())
+        .then(data => {
+            // Handle the API response
+            console.log(data);
+            // Access the first element in the array
+            if(data){
+                const firstElement = data[0];
+                // Access the calling_details field in the first element
+                const callingDetails = firstElement.calling_details;
+                // Do something with the callingDetails object, such as logging it to the console
+                console.log(callingDetails);
+            
+                localStorage.setItem("username", callingDetails.reciever_name)
+                localStorage.setItem("call_id", callingDetails.id)
+                localStorage.setItem("reciver", callingDetails.caller_name)
+                if(firstElement.is_calling == true){
+                    setTimeout(function(){
+                        window.location.href = "/accept"
+                    }, 2000);
+                }
+            }  
+        })
+        .catch(error => {
+            // Handle errors
+            console.error(error);
+        });
+    </script>
+</body>
+</html>
