@@ -239,7 +239,7 @@ class ResetPassword(generics.GenericAPIView):
     serializer_class = ResetPasswordSerilizer
     def post(self, request):
         serializer = self.get_serializer(data=request.data)
-        if serializer.is_vaild():
+        if serializer.is_valid():
             user = User.objects.filter(id = request.user.id).first()
             if user:
                 if user.check_password(serializer.data.get('password')):

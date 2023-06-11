@@ -16,8 +16,7 @@ class IsRegisteredUser(BasePermission):
     def has_permission(self, request, view):
         user_Registerdid = request.data.get('Registerd_id')
         if user_Registerdid:
-            current_user = User.objects.get(registered_userid = request.data.get('Registerd_id'))
-            if current_user.email == request.data.get('email'):
+            if User.objects.filter(registered_userid = request.data.get('Registerd_id')).exists():
                 return True
             else:
                 raise PermissionDenied('You are not authorized to perform this action.')
