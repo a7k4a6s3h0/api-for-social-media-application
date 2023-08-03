@@ -25,6 +25,7 @@ You can build your own web chatting application using my API I'm providing maxim
 - Django Rest Framework
 - Django email module (django.core.mail)
 - Python modules: base64, binascii, and magic
+- Django Channels for real time chat
 - PyJWT is a Python library for generating JSON WEB TOKEN
 - django-cors-headers
 - Swagger for making Documentation
