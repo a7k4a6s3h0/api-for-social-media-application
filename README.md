@@ -18,7 +18,7 @@ You can build your own web chatting application using my API I'm providing maxim
 - Create Broadcast Messages
 - Update Profile, Password, Mobile Number and Email
 - Add status
-- Show offline and online status and message read or not status 
+- Show offline and online status and message read or not status
 
 ## Technologies Used
 
@@ -28,6 +28,7 @@ You can build your own web chatting application using my API I'm providing maxim
 - PyJWT is a Python library for generating JSON WEB TOKEN
 - django-cors-headers
 - Swagger for making Documentation
+- postgreSQL is used as the database
 ## Documentation
 
 You can Use my Documention for more details 
