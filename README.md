@@ -1,38 +1,40 @@
 
-# API FOR WEB CHATTING APLLICATION
+# API FOR WEB CHATTING APPLICATION
 
-You can build your own web chatting application using my API I'm providing maximum functionality you don't need to write entire code for your dream chatting application you only want to read my documentation properly and use it in your project
-
+Discover a user-friendly web chat app, similar to WhatsApp, crafted using Python Django Rest Framework. If you've ever enjoyed using WhatsApp, you'll find our platform familiar and intuitive. The best part? I'm providing you with a ready-to-use API, allowing you to effortlessly create your own chat application.
 
 
 
 ## Features
 
-- User Registration
-- User Login
-- 2 Step OTP Verification
-- Find Useres
-- Chat with Friends
-- User can send text messages , videos, and audio files
-- Create Groups
-- Create Broadcast Messages
-- Update Profile, Password, Mobile Number and Email
-- Add status
-- Show offline and online status and message read or not status
+- Users can register on the platform to create their accounts.
+- Registered users can log in to access their accounts and features.
+- Enhanced security with a 2-step OTP verification process during login.
+- Easily find and connect with other users on the platform.
+- Initiate chat conversations with friends and contacts.
+- Users have the ability to send text messages, videos, and audio files within chats.
+- Create groups to facilitate group conversations and interactions.
+- Broadcast messages can be created and sent to multiple recipients.
+- Manage profile information by updating details such as password, mobile number, and email.
+- Users can share their status updates to let others know what they're up to.
+- Presence indicators like online/offline status and message read status are displayed.
+
 
 ## Technologies Used
 
 - Django Rest Framework
 - Django email module (django.core.mail)
 - Python modules: base64, binascii, and magic
-- Django Channels for real time chat
+- Django Channels for real-time chat
 - PyJWT is a Python library for generating JSON WEB TOKEN
 - django-cors-headers
 - Swagger for making Documentation
-- postgreSQL is used as the database
+- PostgreSQL is used as the database
+- Nginx, Gunicorn, Daphne, Redis, and AWS
+- 
 ## Documentation
 
-You can Use my Documention for more details 
+You can use my Documentation for more details 
 
-[Documentation link](http://multimedianow.xyz/api_docs/)
+[Documentation link](https://documenter.getpostman.com/view/24033907/2s9Xy5LAUY)
 
