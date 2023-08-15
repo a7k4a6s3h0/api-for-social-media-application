@@ -46,7 +46,7 @@ Before establishing a WebSocket connection for real-time chat, ensure the follow
 
 Authentication JWT Token: Users must have an authentication JWT (JSON Web Token) token to access WebSocket functionalities. This token is obtained upon successful login and should be included in the request headers.
 
-Conversation Start: To begin a chat, users need to initiate a conversation. The conversation initiation request should include the necessary details (e.g., recipient), and upon success, the server responds with a room_name which is essential for WebSocket connection.
+Conversation Start: To begin a chat, users need to initiate a conversation. For initiating a Conversation please refer to my [API documentation](https://documenter.getpostman.com/view/24033907/2s9Xy5LAUY) The conversation initiation request should include the necessary details (e.g., recipient, etc...), and upon success, the server responds with a room_name which is essential for a WebSocket connection.
 
 Establishing a WebSocket Connection
 Follow these steps to establish a WebSocket connection for real-time chat:
